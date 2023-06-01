@@ -43,11 +43,12 @@ static TAutoConsoleVariable<int32> CVarRclUERcsSoftCheck(
     TEXT("RCLUE.RCSOFTCHECK"),
     0,
     TEXT("Exit UE with rcl function error or not.\n")
-        TEXT("<=0: Continue without exiting UE even with rcl functions return error code.")
-            TEXT("  1: Exit UE with rcl functions error code.)\n"),
+    TEXT("<=0: Continue without exiting UE even with rcl functions return error code.")
+    TEXT("  1: Exit UE with rcl functions error code.)\n"),
     ECVF_Scalability | ECVF_RenderThreadSafe);
 
 //! this macro can be used on rcl functions that return an error code
+#ifndef RCSOFTCHECK
 #define RCSOFTCHECK(fn)                                                                                     \
     {                                                                                                       \
         rcl_ret_t temp_rc = fn;                                                                             \
@@ -66,6 +67,7 @@ static TAutoConsoleVariable<int32> CVarRclUERcsSoftCheck(
             }                                                                                               \
         }                                                                                                   \
     }
+#endif
 
 /**
  * @brief used to add states to classes (e.g. to avoid double initializations)
@@ -99,59 +101,59 @@ enum class UROS2QoS : uint8
 };
 
 //! profiles provided by rclUE
-static const rmw_qos_profile_t rclUE_qos_profile_keep_last = {RMW_QOS_POLICY_HISTORY_KEEP_LAST,
-                                                              1,
-                                                              RMW_QOS_POLICY_RELIABILITY_RELIABLE,
-                                                              RMW_QOS_POLICY_DURABILITY_VOLATILE,
-                                                              RMW_QOS_DEADLINE_DEFAULT,
-                                                              RMW_QOS_LIFESPAN_DEFAULT,
-                                                              RMW_QOS_POLICY_LIVELINESS_SYSTEM_DEFAULT,
-                                                              RMW_QOS_LIVELINESS_LEASE_DURATION_DEFAULT,
-                                                              false};
+static constexpr rmw_qos_profile_t rclUE_qos_profile_keep_last = {RMW_QOS_POLICY_HISTORY_KEEP_LAST,
+                                                                  1,
+                                                                  RMW_QOS_POLICY_RELIABILITY_RELIABLE,
+                                                                  RMW_QOS_POLICY_DURABILITY_VOLATILE,
+                                                                  RMW_QOS_DEADLINE_DEFAULT,
+                                                                  RMW_QOS_LIFESPAN_DEFAULT,
+                                                                  RMW_QOS_POLICY_LIVELINESS_SYSTEM_DEFAULT,
+                                                                  RMW_QOS_LIVELINESS_LEASE_DURATION_DEFAULT,
+                                                                  false};
 
 //! profiles provided by rclUE
-static const rmw_qos_profile_t rclUE_qos_profile_sensor_data = {RMW_QOS_POLICY_HISTORY_KEEP_LAST,
-                                                                5,
-                                                                RMW_QOS_POLICY_RELIABILITY_RELIABLE,
-                                                                RMW_QOS_POLICY_DURABILITY_VOLATILE,
-                                                                RMW_QOS_DEADLINE_DEFAULT,
-                                                                RMW_QOS_LIFESPAN_DEFAULT,
-                                                                RMW_QOS_POLICY_LIVELINESS_SYSTEM_DEFAULT,
-                                                                RMW_QOS_LIVELINESS_LEASE_DURATION_DEFAULT,
-                                                                false};
+static constexpr rmw_qos_profile_t rclUE_qos_profile_sensor_data = {RMW_QOS_POLICY_HISTORY_KEEP_LAST,
+                                                                    5,
+                                                                    RMW_QOS_POLICY_RELIABILITY_RELIABLE,
+                                                                    RMW_QOS_POLICY_DURABILITY_VOLATILE,
+                                                                    RMW_QOS_DEADLINE_DEFAULT,
+                                                                    RMW_QOS_LIFESPAN_DEFAULT,
+                                                                    RMW_QOS_POLICY_LIVELINESS_SYSTEM_DEFAULT,
+                                                                    RMW_QOS_LIVELINESS_LEASE_DURATION_DEFAULT,
+                                                                    false};
 
 //! profiles provided by rclUE
-static const rmw_qos_profile_t rclUE_qos_profile_clock_pub = {RMW_QOS_POLICY_HISTORY_KEEP_LAST,
-                                                              10,
-                                                              RMW_QOS_POLICY_RELIABILITY_RELIABLE,
-                                                              RMW_QOS_POLICY_DURABILITY_TRANSIENT_LOCAL,
-                                                              RMW_QOS_DEADLINE_DEFAULT,
-                                                              RMW_QOS_LIFESPAN_DEFAULT,
-                                                              RMW_QOS_POLICY_LIVELINESS_SYSTEM_DEFAULT,
-                                                              RMW_QOS_LIVELINESS_LEASE_DURATION_DEFAULT,
-                                                              false};
+static constexpr rmw_qos_profile_t rclUE_qos_profile_clock_pub = {RMW_QOS_POLICY_HISTORY_KEEP_LAST,
+                                                                  10,
+                                                                  RMW_QOS_POLICY_RELIABILITY_RELIABLE,
+                                                                  RMW_QOS_POLICY_DURABILITY_TRANSIENT_LOCAL,
+                                                                  RMW_QOS_DEADLINE_DEFAULT,
+                                                                  RMW_QOS_LIFESPAN_DEFAULT,
+                                                                  RMW_QOS_POLICY_LIVELINESS_SYSTEM_DEFAULT,
+                                                                  RMW_QOS_LIVELINESS_LEASE_DURATION_DEFAULT,
+                                                                  false};
 
 //! profiles provided by rclUE
-static const rmw_qos_profile_t rclUE_qos_profile_dynamic_broadcaster = {RMW_QOS_POLICY_HISTORY_KEEP_LAST,
-                                                                        100,
-                                                                        RMW_QOS_POLICY_RELIABILITY_RELIABLE,
-                                                                        RMW_QOS_POLICY_DURABILITY_VOLATILE,
-                                                                        RMW_QOS_DEADLINE_DEFAULT,
-                                                                        RMW_QOS_LIFESPAN_DEFAULT,
-                                                                        RMW_QOS_POLICY_LIVELINESS_SYSTEM_DEFAULT,
-                                                                        RMW_QOS_LIVELINESS_LEASE_DURATION_DEFAULT,
-                                                                        false};
+static constexpr rmw_qos_profile_t rclUE_qos_profile_dynamic_broadcaster = {RMW_QOS_POLICY_HISTORY_KEEP_LAST,
+                                                                            100,
+                                                                            RMW_QOS_POLICY_RELIABILITY_RELIABLE,
+                                                                            RMW_QOS_POLICY_DURABILITY_VOLATILE,
+                                                                            RMW_QOS_DEADLINE_DEFAULT,
+                                                                            RMW_QOS_LIFESPAN_DEFAULT,
+                                                                            RMW_QOS_POLICY_LIVELINESS_SYSTEM_DEFAULT,
+                                                                            RMW_QOS_LIVELINESS_LEASE_DURATION_DEFAULT,
+                                                                            false};
 
 //! profiles provided by rclUE
-static const rmw_qos_profile_t rclUE_qos_profile_static_broadcaster = {RMW_QOS_POLICY_HISTORY_KEEP_LAST,
-                                                                       1,
-                                                                       RMW_QOS_POLICY_RELIABILITY_RELIABLE,
-                                                                       RMW_QOS_POLICY_DURABILITY_TRANSIENT_LOCAL,
-                                                                       RMW_QOS_DEADLINE_DEFAULT,
-                                                                       RMW_QOS_LIFESPAN_DEFAULT,
-                                                                       RMW_QOS_POLICY_LIVELINESS_SYSTEM_DEFAULT,
-                                                                       RMW_QOS_LIVELINESS_LEASE_DURATION_DEFAULT,
-                                                                       false};
+static constexpr rmw_qos_profile_t rclUE_qos_profile_static_broadcaster = {RMW_QOS_POLICY_HISTORY_KEEP_LAST,
+                                                                           1,
+                                                                           RMW_QOS_POLICY_RELIABILITY_RELIABLE,
+                                                                           RMW_QOS_POLICY_DURABILITY_TRANSIENT_LOCAL,
+                                                                           RMW_QOS_DEADLINE_DEFAULT,
+                                                                           RMW_QOS_LIFESPAN_DEFAULT,
+                                                                           RMW_QOS_POLICY_LIVELINESS_SYSTEM_DEFAULT,
+                                                                           RMW_QOS_LIVELINESS_LEASE_DURATION_DEFAULT,
+                                                                           false};
 
 //! Look-Up Table matching enum with rcl profiles
 static const TMap<UROS2QoS, rmw_qos_profile_t> QoS_LUT = {{UROS2QoS::Default, rmw_qos_profile_default},
@@ -174,6 +176,7 @@ UCLASS()
 class URRTimerManager : public UObject
 {
     GENERATED_BODY()
+
 public:
     FString LogInfo;
 
@@ -207,7 +210,7 @@ public:
         UE_LOG_WITH_INFO(LogTemp, Log, TEXT("[%s] Timer stopped"), *LogInfo);
     }
 
-    void SetTimer(FTimerDelegate const& InDelegate, float InRate)
+    void SetTimer(const FTimerDelegate& InDelegate, float InRate)
     {
         StopTimer();
         Rate = InRate;
@@ -251,8 +254,8 @@ public:
                                       LogTemp,
                                       Warning,
                                       TEXT("[%s] Delegate function call take longer than Rate or StepSize is not "
-                                           "small enough to meet target Rate=%f, "
-                                           "StepSize=%f."),
+                                          "small enough to meet target Rate=%f, "
+                                          "StepSize=%f."),
                                       *LogInfo,
                                       Rate,
                                       FApp::GetFixedDeltaTime());
@@ -275,7 +278,7 @@ public:
     {
         builtin_interfaces__msg__Time stamp;
         stamp.sec = static_cast<int32>(InTimeSec);
-        stamp.nanosec = uint32((InTimeSec - stamp.sec) * 1e+09f);
+        stamp.nanosec = static_cast<uint32>((InTimeSec - stamp.sec) * 1e+09f);
         return stamp;
     }
 
@@ -321,7 +324,7 @@ public:
         {
             free(OutStdMsg.data.data);
         }
-        OutStdMsg.data.data = (char*)malloc(msgStringCapacity);
+        OutStdMsg.data.data = static_cast<char*>(malloc(msgStringCapacity));
         OutStdMsg.data.capacity = msgStringCapacity;
         snprintf(OutStdMsg.data.data, OutStdMsg.data.capacity, "%s", TCHAR_TO_UTF8(*InStr));
         OutStdMsg.data.size = strlen(OutStdMsg.data.data);
@@ -345,7 +348,7 @@ public:
             free(InSequence.data);
             InSequence.data = nullptr;
         }
-        InSequence.data = (decltype(InSequence.data))malloc(size * sizeof(decltype(*(InSequence.data))));
+        InSequence.data = static_cast<decltype(InSequence.data)>(malloc(size * sizeof(decltype(*(InSequence.data)))));
         InSequence.size = size;
         InSequence.capacity = size;
     }

@@ -47,7 +47,8 @@ public class rclUE : ModuleRules
                 PublicAdditionalLibraries.Add(lib);
                 if (bInCopySharedLibsToOutputDir)
                 {
-                	// NOTE: Don't use $(BinaryOutputDir), which makes lib copied to this module's Binaries folder in Editor build, not the executor folder (UE4Editor/UnrealEditor or packaged app)
+                    // NOTE: rclUE ROS libraries are particular after custom RPATH processed
+                    // Thus, Don't use $(BinaryOutputDir), which makes lib copied to this module's Binaries folder in Editor build, not the executor folder (UE4Editor/UnrealEditor or packaged app)
                     RuntimeDependencies.Add(Path.Combine("$(TargetOutputDir)", Path.GetFileName(lib)), lib, StagedFileType.NonUFS);
                 }
                 else
@@ -69,7 +70,7 @@ public class rclUE : ModuleRules
 		}
 
 		PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
-		CppStandard = CppStandardVersion.Cpp17;
+		CppStandard = CppStandardVersion.Latest;
 		if (Target.Platform == UnrealTargetPlatform.Linux)
 		{
 			// In order to ROS shared libs to be linkable by client UE app & for sake of portability, they need to all co-locate in the same folder
